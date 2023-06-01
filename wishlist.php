@@ -5,16 +5,14 @@
         date:1/5/2022
     ============================================================-->
     <?php
-    session_start();
-
-    require '../lib/api.php';
-    require '../lib/locale/ja.php';
-    require "../lib/pagination.php";
-    require 'Api.php';
-
-    $msg = " ";
-    $url = $_SERVER['PHP_SELF'] .'?';
-    ?>
+session_start();
+require '../lib/api.php';
+require '../lib/locale/ja.php';
+require "../lib/pagination.php";
+require 'Api.php';
+$msg = " ";
+$url = $_SERVER['PHP_SELF'] . '?';
+?>
     <!DOCTYPE html>
     <html lang="ja">
 
@@ -121,9 +119,11 @@
                                 <ul class="ec-breadcrumb-list">
                                     <?php if (isset($_SESSION['Login']) && !empty($_SESSION['Login'])) { ?>
                                     <li class="ec-breadcrumb-item"><a href="user-profile.html">ホーム</a></li>
-                                    <?php } else { ?>
+                                    <?php
+} else { ?>
                                     <li class="ec-breadcrumb-item"><a href="home.php">ホーム</a></li>
-                                    <?php } ?>
+                                    <?php
+} ?>
                                     <li class="ec-breadcrumb-item active">お気に入り</li>
                                 </ul>
                                 <!-- ec-breadcrumb-list end -->
@@ -146,46 +146,38 @@
         <!-- Back Button Link  -->
         <a href="home.php"> </a>
             <?php
-        if (!isset($_SESSION['Login']) && empty($_SESSION['Login'])) {
-            header('location:login.php');
+if (!isset($_SESSION['Login']) && empty($_SESSION['Login'])) {
+    header('location:login.php');
+} else {
+    $pagno = $_GET["pg"];
+    if ($pagno == "") {
+        $pagno = 1;
+    }
+    $data_array = array("visitor_no" => $_SESSION['Visitor_no'], "offset" => $pagno);
+    $make_call = callAPI('POST', 'view/fetchwishlist', json_encode($data_array));
+    $response = json_decode($make_call, true);
+    if (!$response) {
+        $msg = "■ エラーが発生しました。";
+    } else {
+        $details = $response['ENTITY_LIST'];
+        $count = $response['COUNT'];
+        if (count($details) == 0) {
+            $det_cont = 0;
+            $pageno = 0;
+        } else {
+            $det_cont = count($details) + ($pagno - 1) * 20;
+            $pageno = ($pagno - 1) * 20 + 1;
         }
-        else{
-
-            $pagno= $_GET["pg"];
-
-            if($pagno==""){
-                $pagno=1;
-            }
-            $data_array =  array("visitor_no" => $_SESSION['Visitor_no'],"offset"=>$pagno);
-            $make_call = callAPI('POST', 'view/fetchwishlist', json_encode($data_array));
-            $response = json_decode($make_call, true);
-            if (!$response) {
-                $msg = "■ エラーが発生しました。";
-            } else {
-                $details = $response['ENTITY_LIST'];
-                $count= $response['COUNT'];
-                if(count($details)==0){
-                    $det_cont=0;
-                    $pageno=0;
-
-                }
-                else{
-                $det_cont=count($details) + ($pagno - 1) * 20;       
-                $pageno=($pagno - 1) * 20 + 1 ;
-                }
-            }
-                    
-
-        }
-        ?>
+    }
+}
+?>
     
         <div class="text-center">
             <b>
                 <span id="error1">
-                    <?php if ($msg != "") 
-                    {
-                        echo $msg;
-                    } ?>
+                    <?php if ($msg != "") {
+    echo $msg;
+} ?>
                 </span>
             </b>
         </div>
@@ -210,17 +202,19 @@
                                         <div class="ec-compare-inner">
                                             <div class="row margin-minus-b-30 ec-wish-rightside">
                                                 <?php
-                                                foreach ($details as $value) {
-                                                ?>
+foreach ($details as $value) {
+?>
                                                 <div class="col-lg-3 col-md-4 col-sm-6 col-xs-6 mb-6 col-5 pro-gl-content">
                                                     <div class="ec-product-inner">
                                                         <div class="ec-pro-image-outer">
                                                             <div class="ec-pro-image img-style">
                                                                 <a href="top1.php?regno=<?php echo $value['registerno']; ?>&cond=normal"
                                                                     class="image">
-                                                                    <img class="main-image" src="https://kh01.kyoto-happy.co.jp/netkuroku/saiful/<?php if($value['coverimage']=="" || $value['coverimage']==0){
-                                                                            echo 'no_image.png';
-                                                                            } else {echo $value['coverimage'];} ?>"
+                                                                    <img class="main-image" src="https://kh01.kyoto-happy.co.jp/netkuroku/saiful/<?php if ($value['coverimage'] == "" || $value['coverimage'] == 0) {
+        echo 'no_image.png';
+    } else {
+        echo $value['coverimage'];
+    } ?>"
                                                                         alt="Product" />
                                                                 </a>
                                                                 <span class="ec-com-remove ec-remove-wish"><a
@@ -240,8 +234,8 @@
                                                     </div>
                                                 </div>
                                                 <?php
-                                                }
-                                                ?>
+}
+?>
                                             </div>
                                         </div>
                                     </div>
@@ -249,7 +243,7 @@
                             </div>
                             <!-- Ec Pagination Start -->
                             <div class="ec-pro-pagination" style="margin-top: 2%;">
-                            <?php echo $count;?> 件中 <?php echo $pageno; ?>〜<?php echo $det_cont; ?>件目を表示 
+                            <?php echo $count; ?> 件中 <?php echo $pageno; ?>〜<?php echo $det_cont; ?>件目を表示 
                                 </div>
                                     <div id="demoA" class="pagination-inner"></div>                                   
                                 </div>
@@ -300,7 +294,7 @@
         <script>
         function remove(id) {
             var settings = {
-                "url": "<?php echo $wishlist ; ?>",
+                "url": "<?php echo $wishlist; ?>",
                 "method": "POST",
                 "timeout": 0,
                 "headers": {
@@ -353,10 +347,10 @@
 
         <script>
             $(document).ready(function() {
-                <?php if (   !isset($_SESSION['Login']) && empty($_SESSION['Login'])        
-                    ) { ?>
+                <?php if (!isset($_SESSION['Login']) && empty($_SESSION['Login'])) { ?>
                 window.location.href = "Login.php";
-                <?php } ?>
+                <?php
+} ?>
             });
         </script>
     </body>
