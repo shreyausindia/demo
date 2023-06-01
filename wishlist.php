@@ -74,14 +74,14 @@
         }
 
         @media screen and (max-width:1800px) and (min-width:820px) {
-            .image {           
+            .image{           
                 height: 155px !important;
             }
 
         }
 
         @media screen and (max-width:1400px) and (min-width:820px) {
-            .image {      
+            .image{      
                 height: 125px !important;         
             }
 
